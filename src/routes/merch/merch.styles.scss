@@ -1,0 +1,41 @@
+.merch-container{
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px 40px;
+    max-width: 80rem;
+}
+
+.merch-group-name{
+    font-size: 38px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.merch-items{
+    width: 100%;
+}
+
+.merch-group{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+}
+
+.merch-items-list{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: 20px;
+    row-gap: 50px;
+
+    @media (max-width: 1330px) {
+        grid-template-columns: repeat(3, 1fr); /* Switch to 3 columns on smaller screens */
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns on smaller screens */
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: repeat(1, 1fr); /* Switch to 1 column on very small screens */
+    }
+}

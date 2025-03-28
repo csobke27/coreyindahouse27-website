@@ -1,63 +1,22 @@
-// import React, { useState } from "react";
-// import "./carousel.styles.scss";
-
-// const Carousel = ({ images }) => {
-//   const [currentIndex, setCurrentIndex] = useState(1);
-
-//   const nextSlide = () => {
-//     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-//   };
-
-//   const prevSlide = () => {
-//     setCurrentIndex((prevIndex) =>
-//       prevIndex === 0 ? images.length - 1 : prevIndex - 1
-//     );
-//   };
-
-//   return (
-//     <div className="carousel-container">
-//       <div className="carousel-slides">
-//         {images.map((image, index) => (
-//           <div
-//             key={index}
-//             className={`carousel-slide ${
-//               index === currentIndex ? "active" : ""
-//             }`}
-//           >
-//             <img src={image} alt={`Slide ${index + 1}`} />
-//           </div>
-//         ))}
-//       </div>
-//       <button className="carousel-button prev" onClick={prevSlide}>
-//         &#10094;
-//       </button>
-//       <button className="carousel-button next" onClick={nextSlide}>
-//         &#10095;
-//       </button>
-//     </div>
-//   );
-// };
-
-// export default Carousel;
-
 import React from 'react'
 import { useState, useEffect } from 'react'
-import './carousel.styles.scss' //will be added later
+import './carousel.styles.scss'
 
 const Carousel = (props) => {
-    const {children} = props
+    const { children, autoPlay = false, autoPlayTime = 8000, navigation = true } = props
 
-    const [currentIndex, setCurrentIndex] = useState(0)
-    const [length, setLength] = useState(children.length)
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [length, setLength] = useState(children.length);
+    const [isAutoPlay, setIsAutoPlay] = useState(autoPlay);
 
     const next = () => {
         if (currentIndex < (length - 1)) {
             setCurrentIndex(prevState => prevState + 1)
-        } else{
+        } else {
             setCurrentIndex(0)
         }
     }
-    
+
     const prev = () => {
         if (currentIndex > 0) {
             setCurrentIndex(prevState => prevState - 1)
@@ -70,41 +29,61 @@ const Carousel = (props) => {
         setLength(children.length)
     }, [children])
 
-    // Automatically trigger `next` every 8 seconds
+    // Automatically trigger `next` every `autoPlayTime` milliseconds
     useEffect(() => {
+        console.log(isAutoPlay);
+        if (isAutoPlay === false) {
+            return
+        }
         const interval = setInterval(() => {
             next();
-        }, 8000); // 8000ms = 8 seconds
+        }, autoPlayTime);
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
-    }, [currentIndex, length]);
+    }, [currentIndex, length, isAutoPlay]);
+
+    const togglePlayPause = () => {
+        setIsAutoPlay((prevState) => !prevState);
+    }
 
     return (
         <div className="carousel-container">
             <div className="carousel-wrapper">
-                <button onClick={prev} className="left-arrow">
-                    &lt;
-                </button>
+                {navigation && (
+                    <button onClick={prev} className="left-arrow">
+                        &lt;
+                    </button>
+                )}
                 <div className="carousel-content-wrapper">
                     <div className="carousel-content" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
                         {children}
                     </div>
                 </div>
-                <button onClick={next} className="right-arrow">
-                    &gt;
-                </button>
+                {navigation && (
+                    <button onClick={next} className="right-arrow">
+                        &gt;
+                    </button>
+                )}
+                <div className="play-pause-container">
+                    <button onClick={togglePlayPause} className="play-pause-button">
+                        {isAutoPlay ? 'Pause' : 'Play'}
+                    </button>
+                </div>
             </div>
             <div className="progress-bar-container">
                 {children.map((_, index) => (
-                <button
-                    onClick={() => setCurrentIndex(index)}
-                    key={index}
-                    className={`progress-bar ${
-                    index === currentIndex ? "active" : ""
-                    }`}
-                ></button>
+                    <button
+                        onClick={() => setCurrentIndex(index)}
+                        key={`${index}-${isAutoPlay}`} // Re-render the component when isAutoPlay changes to restart the animation
+                        className={`progress-bar ${index === currentIndex ? "active" : ""
+                            }`}
+                        style={{
+                            '--progress-duration': `${isAutoPlay ? autoPlayTime : 0}ms`, // Set CSS variable dynamically
+                        }}
+                    ></button>
                 ))}
             </div>
+
         </div>
     )
 }
